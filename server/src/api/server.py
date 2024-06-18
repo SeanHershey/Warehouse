@@ -1,18 +1,18 @@
 from fastapi import FastAPI, exceptions
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-from src.api import admin, characters, inventory, shop, quests
+from src.api import admin, warehouse
 import json
 import logging
 import sys
 from starlette.middleware.cors import CORSMiddleware
 
 description = """
-SQL Quest is the premier quest site for all your adventuring desires.
+Warehouse is an application that allows its employees to keep track of its physical inventory
 """
 
 app = FastAPI(
-    title="SQL Quest",
+    title="Warehouse",
     description=description,
     version="0.0.1",
     terms_of_service="http://example.com/terms/",
@@ -22,20 +22,14 @@ app = FastAPI(
     },
 )
 
-origins = ["https://potion-exchange.vercel.app"]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["GET", "OPTIONS"],
     allow_headers=["*"],
 )
 
-app.include_router(characters.router)
-app.include_router(shop.router)
-app.include_router(inventory.router)
-app.include_router(quests.router)
+app.include_router(warehouse.router)
 app.include_router(admin.router)
 
 @app.exception_handler(exceptions.RequestValidationError)
@@ -51,4 +45,4 @@ async def validation_exception_handler(request, exc):
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to SQL Quest."}
+    return {"message": "Welcome to Warehouse."}
