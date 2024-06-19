@@ -77,15 +77,15 @@ app = FastAPI(
     },
 )
 origins = [
-    "http://127.0.0.1:5173", # dev
-    "https://warehouse-app-lxap.onrender.com"
+    "http://127.0.0.1:5173/", # dev
+    "https://warehouse-app-lxap.onrender.com/"
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET", "OPTIONS"],
+    allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

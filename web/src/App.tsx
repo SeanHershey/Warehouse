@@ -6,11 +6,7 @@ function App() {
     <h1> Warehouses </h1>
     <GetWarehouses/>
     <form>
-        <label>
-            Name:
-            <input type="text" name="name" />
-        </label>
-        <input type="submit" value="Submit" />
+        <input type="submit" value="New Warehouse" />
     </form>
     <br/>
     <h1> Shelves </h1>

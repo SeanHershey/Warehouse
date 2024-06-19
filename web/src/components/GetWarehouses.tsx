@@ -18,7 +18,7 @@ export function GetWarehouses() {
         <p>Loading ...</p>
       ) : (
             <ul>
-                {data.map((line:any) => (
+                {[{name:"hello"},{name:"there"}].map((line:any) => (
                     <li>{line.name}</li>
                 ))}
             </ul>
