@@ -29,7 +29,7 @@ class Warehouse:
 
 @strawberry.type
 class Warehouses:
-    ids: JSON
+    results: JSON
 
 @strawberry.type
 class Query:
@@ -45,18 +45,22 @@ class Query:
     @strawberry.field
     def warehouses(self) -> Warehouses:
         with db.engine.begin() as connection:
-            result = connection.execute(sqlalchemy.text(
+            results = connection.execute(sqlalchemy.text(
                 """
-                    SELECT * FROM warehouses
+                    SELECT name, zone, COALESCE(shelves.warehouse, warehouses.id) AS warehouse
+                    FROM warehouses
+                    FULL JOIN shelves ON shelves.warehouse = warehouses.id;
                 """))
 
         json = []
-        for item in result:
+        for item in results:
             json.append(
                 {
-                    "id": item.id})
+                    "name": item.name,
+                    "zone": item.zone,
+                    "warehouse": item.warehouse})
 
-        return Warehouses(ids=json)
+        return Warehouses(results=json)
 
 schema = strawberry.Schema(query=Query)
 
