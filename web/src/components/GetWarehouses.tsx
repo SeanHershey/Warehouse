@@ -1,30 +1,27 @@
 import React from 'react';
 import { useQuery, gql } from '@apollo/client';
+import { BuildTable } from './BuildTable';
 
 const GET_WAREHOUSES = gql`
-    {warehouses{ids}}
+    {warehouses{results}}
 `;
 
 export function GetWarehouses() {
   const { loading, data } = useQuery(
     GET_WAREHOUSES
   );
+  console.log(data);
   return (
     <>
     <div>
       {loading ? (
         <p>Loading ...</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>id</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data}
-          </tbody>
-        </table>
+            <ul>
+                {data.map((line:any) => (
+                    <li>{line.name}</li>
+                ))}
+            </ul>
       )}
     </div>
     
