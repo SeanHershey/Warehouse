@@ -12,9 +12,11 @@ router = APIRouter(
 
 @router.post("/reset")
 def reset():
-    """
-    TODO: Reset
-    """
-    
-    return {"success": True}
+    # Deletes all data
+
+    with db.engine.begin() as connection:
+        connection.execute(sqlalchemy.text(
+            """TRUNCATE TABLE warehouses, shelves"""))
+
+    return "OK"
 

@@ -6,9 +6,7 @@ router = APIRouter()
 
 @router.post("/warehouse/", tags=["warehouse"])
 def create_warehouse():
-    """
-    New Warehouse
-    """
+    # Creates a new warehouse
 
     with db.engine.begin() as connection:
         id = connection.execute(sqlalchemy.text(
@@ -21,9 +19,7 @@ def create_warehouse():
 
 @router.get("/warehouses/", tags=["warehouse"])
 def get_warehouses():
-    """
-    Get Warehouses
-    """
+    # Gets all warehouse ids
 
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
@@ -37,4 +33,4 @@ def get_warehouses():
             {
                 "id": item.id})
 
-    return result
+    return json
