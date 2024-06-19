@@ -1,8 +1,11 @@
 from fastapi import APIRouter
 import sqlalchemy
 from src import database as db
+import strawberry
+
 
 router = APIRouter()
+
 
 @router.post("/warehouse/", tags=["warehouse"])
 def create_warehouse():

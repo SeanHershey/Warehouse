@@ -6,10 +6,61 @@ import json
 import logging
 import sys
 from starlette.middleware.cors import CORSMiddleware
+import strawberry
+from strawberry.asgi import GraphQL
+from src import database as db
+import sqlalchemy
+from typing import Any, NewType
 
 description = """
 Warehouse is an application that allows its employees to keep track of its physical inventory
 """
+
+JSON = strawberry.scalar(
+    NewType("JSON", object),
+    description="The `JSON` scalar type represents JSON values as specified by ECMA-404",
+    serialize=lambda v: v,
+    parse_value=lambda v: v,
+)
+
+@strawberry.type
+class Warehouse:
+    id: int
+
+@strawberry.type
+class Warehouses:
+    ids: JSON
+
+@strawberry.type
+class Query:
+    @strawberry.field
+    def warehouse(self) -> Warehouse:
+        with db.engine.begin() as connection:
+            id = connection.execute(sqlalchemy.text(
+                """
+                    INSERT INTO warehouses (id) VALUES(DEFAULT) RETURNING id
+                """)).scalar_one()
+        return Warehouse(id=id)
+    
+    @strawberry.field
+    def warehouses(self) -> Warehouses:
+        with db.engine.begin() as connection:
+            result = connection.execute(sqlalchemy.text(
+                """
+                    SELECT * FROM warehouses
+                """))
+
+        json = []
+        for item in result:
+            json.append(
+                {
+                    "id": item.id})
+
+        return Warehouses(ids=json)
+
+schema = strawberry.Schema(query=Query)
+
+graphql_app = GraphQL(schema)
 
 app = FastAPI(
     title="Warehouse",
@@ -47,3 +98,6 @@ async def validation_exception_handler(request, exc):
 @app.get("/")
 async def root():
     return {"message": "Welcome to Warehouse."}
+
+app.add_route("/graphql", graphql_app)
+app.add_websocket_route("/graphql", graphql_app)

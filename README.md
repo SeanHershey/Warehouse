@@ -10,6 +10,7 @@ Then associate an item’s storage shelf with a physical location.
 **Frontend**
 - React
 - TypeScript
+- Apollo Client
 
 **Backend**
 - FastAPI
