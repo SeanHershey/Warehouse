@@ -4,7 +4,6 @@ from pydantic import ValidationError
 from src.api import admin, warehouse, shelf
 import json
 import logging
-import sys
 from starlette.middleware.cors import CORSMiddleware
 import strawberry
 from strawberry.asgi import GraphQL
@@ -18,7 +17,7 @@ Warehouse is an application that allows its employees to keep track of its physi
 
 JSON = strawberry.scalar(
     NewType("JSON", object),
-    description="The `JSON` scalar type represents JSON values as specified by ECMA-404",
+    description="Scalar representing JSON values (ECMA-404)",
     serialize=lambda v: v,
     parse_value=lambda v: v,
 )
@@ -28,39 +27,73 @@ class Warehouse:
     id: int
 
 @strawberry.type
-class Warehouses:
+class Shelf:
+    id: int
+    message: str
+
+@strawberry.type
+class Shelves:
     results: JSON
 
 @strawberry.type
 class Query:
     @strawberry.field
-    def warehouse(self) -> Warehouse:
+    def createWarehouse(self) -> Warehouse:
         with db.engine.begin() as connection:
             id = connection.execute(sqlalchemy.text(
                 """
                     INSERT INTO warehouses (id) VALUES(DEFAULT) RETURNING id
                 """)).scalar_one()
+        
         return Warehouse(id=id)
     
     @strawberry.field
-    def warehouses(self) -> Warehouses:
+    def getShelves(self) -> Shelves:
         with db.engine.begin() as connection:
             results = connection.execute(sqlalchemy.text(
                 """
                     SELECT name, zone, COALESCE(shelves.warehouse, warehouses.id) AS warehouse
                     FROM warehouses
-                    FULL JOIN shelves ON shelves.warehouse = warehouses.id;
+                    FULL JOIN shelves ON shelves.warehouse = warehouses.id
+                    ORDER BY warehouse;
                 """))
 
+        # build json from results
         json = []
         for item in results:
-            json.append(
-                {
-                    "name": item.name,
-                    "zone": item.zone,
-                    "warehouse": item.warehouse})
+            json.append({
+                "name": item.name,
+                "zone": item.zone,
+                "warehouse": item.warehouse})
 
-        return Warehouses(results=json)
+        return Shelves(results=json)
+
+    @strawberry.field
+    def createShelf(self, warehouse: int, name:str, zone:int) -> Shelf:
+        with db.engine.begin() as connection:
+            # zone is 1-12
+            if zone < 1 or zone > 12:
+                return Shelf(id=-1, message="Please enter a zone number 1 through 12.")
+
+            # zone capacity
+            count = connection.execute(sqlalchemy.text(
+                """
+                    SELECT count(zone) FROM shelves WHERE zone=:zone
+                """), {"zone":zone}).scalar_one()
+            if count >= 10:
+                return Shelf(id=-1, message="Zone is at capacity of 10, please try another zone.")
+            
+            # insert shelf
+            try:
+                id = connection.execute(sqlalchemy.text(
+                    """
+                        INSERT INTO shelves (id, warehouse, name, zone) VALUES(DEFAULT, :warehouse, :name, :zone) RETURNING id
+                    """),{"warehouse":warehouse, "name":name, "zone":zone}).scalar_one()
+            # unique name
+            except:
+                return Shelf(id=-1, message="Please provide a unique shelf name.")
+
+        return Shelf(id=id, message="Success")
 
 schema = strawberry.Schema(query=Query)
 
@@ -78,16 +111,16 @@ app = FastAPI(
 )
 
 origins = [
-    "http://127.0.0.1:5173/", # dev
     "https://warehouse-app-lxap.onrender.com/"
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # dev
+    allow_origins=["*"], # dev (prod=origins)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 app.include_router(warehouse.router)
