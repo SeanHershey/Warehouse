@@ -17,6 +17,3 @@ Then associate an item’s storage shelf with a physical location.
 - GraphQL
 - Postgres
 
-**Testing**
-- Jest
-
