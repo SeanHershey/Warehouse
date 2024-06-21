@@ -1,7 +1,7 @@
 from fastapi import FastAPI, exceptions
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-from src.api import admin, warehouse, shelf
+from src.api import admin
 import json
 import logging
 from starlette.middleware.cors import CORSMiddleware
@@ -68,7 +68,10 @@ class Query:
 
         return Shelves(results=json)
 
-    @strawberry.field
+
+@strawberry.type
+class Mutation:
+    @strawberry.mutation
     def createShelf(self, warehouse: int, name:str, zone:int) -> Shelf:
         with db.engine.begin() as connection:
             # zone is 1-12
@@ -78,8 +81,8 @@ class Query:
             # zone capacity
             count = connection.execute(sqlalchemy.text(
                 """
-                    SELECT count(zone) FROM shelves WHERE zone=:zone
-                """), {"zone":zone}).scalar_one()
+                    SELECT count(zone) FROM shelves WHERE zone=:zone AND warehouse=:warehouse
+                """), {"zone":zone, "warehouse":warehouse}).scalar_one()
             if count >= 10:
                 return Shelf(id=-1, message="Zone is at capacity of 10, please try another zone.")
             
@@ -95,7 +98,10 @@ class Query:
 
         return Shelf(id=id, message="Success")
 
-schema = strawberry.Schema(query=Query)
+
+
+
+schema = strawberry.Schema(query=Query, mutation=Mutation)
 
 graphql_app = GraphQL(schema)
 
@@ -123,8 +129,6 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
-app.include_router(warehouse.router)
-app.include_router(shelf.router)
 app.include_router(admin.router)
 
 @app.exception_handler(exceptions.RequestValidationError)

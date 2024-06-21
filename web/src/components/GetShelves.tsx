@@ -1,10 +1,10 @@
 import { useQuery, gql } from '@apollo/client';
 
 const GET_SHELVES = gql`
-    {getShelves{results}}
+    {getShelves {results}}
 `;
 
-export function GetWarehouses() {
+export function GetShelves() {
   const { loading, data } = useQuery(GET_SHELVES);
   return (
     <>
@@ -21,7 +21,7 @@ export function GetWarehouses() {
             </tr>
             </thead>
             <tbody>
-            {data.warehouses.results.map((item:any, i:any) => (
+            {data.getShelves.results.map((item:any, i:any) => (
                 <tr key={i}>
                     <td>{item.warehouse}</td>
                     <td>{item.name}</td>
