@@ -1,7 +1,6 @@
 from fastapi import FastAPI, exceptions
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-from src.api import admin
 import json
 import logging
 from starlette.middleware.cors import CORSMiddleware
@@ -27,13 +26,16 @@ class Warehouse:
     id: int
 
 @strawberry.type
-class Shelf:
-    id: int
+class Shelves:
+    results: JSON
+
+@strawberry.type
+class Message:
     message: str
 
 @strawberry.type
-class Shelves:
-    results: JSON
+class Shelf:
+    id: int
 
 @strawberry.type
 class Query:
@@ -44,6 +46,11 @@ class Query:
                 """
                     INSERT INTO warehouses (id) VALUES(DEFAULT) RETURNING id
                 """)).scalar_one()
+            
+            connection.execute(sqlalchemy.text(
+                """
+                    INSERT INTO status_log (status) VALUES(:status)
+                """), {"status":"Created warehouse " + str(id) + "."})
         
         return Warehouse(id=id)
     
@@ -67,6 +74,31 @@ class Query:
                 "warehouse": item.warehouse})
 
         return Shelves(results=json)
+    
+    @strawberry.field
+    def getStatus(self) -> Message:
+        with db.engine.begin() as connection:
+            message = connection.execute(sqlalchemy.text(
+                """
+                    SELECT status FROM status_log WHERE id IN (SELECT MAX(id) FROM status_log)
+                """)).scalar_one()
+        
+        return Message(message=message)
+
+    @strawberry.field
+    def reset(self) -> Message:
+        with db.engine.begin() as connection:
+            connection.execute(sqlalchemy.text(
+                """
+                    TRUNCATE TABLE warehouses, shelves RESTART IDENTITY;
+                """))
+        
+            connection.execute(sqlalchemy.text(
+                    """
+                        INSERT INTO status_log (status) VALUES(:status)
+                    """), {"status":"Reset warehouse shelves."})
+        
+        return Message(message="Success")
 
 
 @strawberry.type
@@ -76,7 +108,11 @@ class Mutation:
         with db.engine.begin() as connection:
             # zone is 1-12
             if zone < 1 or zone > 12:
-                return Shelf(id=-1, message="Please enter a zone number 1 through 12.")
+                connection.execute(sqlalchemy.text(
+                    """
+                        INSERT INTO status_log (status) VALUES(:status)
+                    """), {"status":"Please enter a zone number 1 through 12."})
+                return Shelf(id=-1)
 
             # zone capacity
             count = connection.execute(sqlalchemy.text(
@@ -84,7 +120,11 @@ class Mutation:
                     SELECT count(zone) FROM shelves WHERE zone=:zone AND warehouse=:warehouse
                 """), {"zone":zone, "warehouse":warehouse}).scalar_one()
             if count >= 10:
-                return Shelf(id=-1, message="Zone is at capacity of 10, please try another zone.")
+                connection.execute(sqlalchemy.text(
+                    """
+                        INSERT INTO status_log (status) VALUES(:status)
+                    """), {"status":"Zone " + str(zone) + " is at capacity of 10, please try another zone."})
+                return Shelf(id=-1)
             
             # insert shelf
             try:
@@ -94,11 +134,18 @@ class Mutation:
                     """),{"warehouse":warehouse, "name":name, "zone":zone}).scalar_one()
             # unique name
             except:
-                return Shelf(id=-1, message="Please provide a unique shelf name.")
+                connection.execute(sqlalchemy.text(
+                    """
+                        INSERT INTO status_log (status) VALUES(:status)
+                    """), {"status":"Please provide a unique shelf name."})
+                return Shelf(id=-1)
+            
+            connection.execute(sqlalchemy.text(
+                    """
+                        INSERT INTO status_log (status) VALUES(:status)
+                    """), {"status":"Created shelf " + name + "."})
 
-        return Shelf(id=id, message="Success")
-
-
+        return Shelf(id=id)
 
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
@@ -128,8 +175,6 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
-
-app.include_router(admin.router)
 
 @app.exception_handler(exceptions.RequestValidationError)
 @app.exception_handler(ValidationError)

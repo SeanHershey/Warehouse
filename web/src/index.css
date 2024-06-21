@@ -2,6 +2,9 @@
     margin: 0px;
     padding: 0.25rem;
     box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
 }
 
 body {
@@ -11,10 +14,3 @@ body {
     place-content: center;
 }
 
-button {
-    font-size: 1.5rem;
-}
-
-.bold {
-    font-weight: bold;
-}
