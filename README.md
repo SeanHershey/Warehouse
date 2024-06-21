@@ -7,6 +7,8 @@ Website - https://warehouse-app-lxap.onrender.com/
 
 API - https://warehouse-pcmv.onrender.com/graphql
 
+Contact - sean.p.hershey@gmail.com
+
 ## Setup
 Clone repository or download files
 
@@ -20,19 +22,20 @@ Clone repository or download files
     - Open the Command Palette (Ctrl+Shift+P)
     - Search for the Python: Create Environment command
     - Select environment type: Venv
-    - Select an interpreter: Python version 3.11.4
+    - Select an interpreter: Python version 3.11.4 (download if not already installed)
     - Select install requirements from requirements.txt
-5. Debug and Run code (Ctrl+Shift+D F5)
-6. Access the site in the browser with the URL/graphql (Uvicorn running on: \<URL\>)
+5. Run and Debug code (Ctrl+Shift+D F5)
+6. Access the site in Chrome with the URL/graphql (Uvicorn running on: http://127.0.0.1:8000)
 
 **Local Web Steps**
-1. Open the web directory in VSCode
+1. Open the web directory in a new VSCode window
 2. Create a new terminal (Ctrl+Shift+`)
-3. Type and run: npm run dev
-4. Access the site in the browser with the URL (Local: \<URL\>)
-5. To point the web to the local server
-    - In main.tsx change the ApolloClient URI
-    - Update it to the local server URL from local server step 4 (Uvicorn running on: \<URL\>)
+3. Type and run: npm install (download NodeJS if not already installed)
+4. Type and run: npm run dev
+5. Access the site in Chrome with the URL (Local: \<URL\>)
+6. To point the web to the local server
+    - In src/main.tsx change the ApolloClient URI
+    - Update it to the local server URL from local server step 4 (Example: http://127.0.0.1:8000/graphql)
     - Don't forget to add the /graphql
 
 ## Stack
