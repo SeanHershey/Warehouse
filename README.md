@@ -13,7 +13,6 @@ Then associate an item’s storage shelf with a physical location.
 - Apollo Client
 
 **Backend**
-- FastAPI
 - GraphQL
+- FastAPI
 - Postgres
-
