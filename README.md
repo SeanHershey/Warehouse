@@ -25,7 +25,7 @@ Clone repository or download files
     - Select an interpreter: Python version 3.11.4 (download if not already installed)
     - Select install requirements from requirements.txt
 5. Run and Debug code (Ctrl+Shift+D F5)
-6. Access the site in Chrome with the URL/graphql (Uvicorn running on: http://127.0.0.1:8000)
+6. Access the site in Chrome with the URL/graphql (Uvicorn running on: URL)
 
 **Local Web Steps**
 1. Open the web directory in a new VSCode window
@@ -35,7 +35,7 @@ Clone repository or download files
 5. Access the site in Chrome with the URL (Local: \<URL\>)
 6. To point the web to the local server
     - In src/main.tsx change the ApolloClient URI
-    - Update it to the local server URL from local server step 4 (Example: http://127.0.0.1:8000/graphql)
+    - Update it to the local server URL from local server step 6 (URL/graphql)
     - Don't forget to add the /graphql
 
 ## Stack
