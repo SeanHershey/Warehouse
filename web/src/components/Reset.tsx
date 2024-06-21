@@ -2,7 +2,8 @@ import { gql, useLazyQuery } from '@apollo/client';
 
 
 const RESET = gql`
-    {reset {message}}
+    {reset {
+        message}}
 `;
 
 const Reset = () => {

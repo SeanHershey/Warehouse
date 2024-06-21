@@ -14,6 +14,13 @@ description = """
 Warehouse is an application that allows its employees to keep track of its physical inventory
 """
 
+def log(status):
+    with db.engine.begin() as connection:
+        connection.execute(sqlalchemy.text(
+                """
+                    INSERT INTO status_log (status) VALUES(:status)
+                """), {"status":status})
+
 JSON = strawberry.scalar(
     NewType("JSON", object),
     description="Scalar representing JSON values (ECMA-404)",
@@ -47,10 +54,7 @@ class Query:
                     INSERT INTO warehouses (id) VALUES(DEFAULT) RETURNING id
                 """)).scalar_one()
             
-            connection.execute(sqlalchemy.text(
-                """
-                    INSERT INTO status_log (status) VALUES(:status)
-                """), {"status":"Created warehouse " + str(id) + "."})
+            log("Created warehouse " + str(id) + ".")
         
         return Warehouse(id=id)
     
@@ -92,11 +96,8 @@ class Query:
                 """
                     TRUNCATE TABLE warehouses, shelves RESTART IDENTITY;
                 """))
-        
-            connection.execute(sqlalchemy.text(
-                    """
-                        INSERT INTO status_log (status) VALUES(:status)
-                    """), {"status":"Reset warehouse shelves."})
+            
+            log("Reset warehouse shelves.")
         
         return Message(message="Success")
 
@@ -104,14 +105,25 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.mutation
-    def createShelf(self, warehouse: int, name:str, zone:int) -> Shelf:
+    def createShelf(self, name:str, warehouse: int, zone:int) -> Shelf:
         with db.engine.begin() as connection:
+            # valid name
+            if not name:
+                log("Please enter a valid name.")
+                return Shelf(id=-1)
+
+            # warehouse exists
+            warehouses = connection.execute(sqlalchemy.text(
+                """
+                    SELECT id FROM warehouses
+                """)).scalars()
+            if warehouse not in warehouses:
+                log("Please enter a valid warehouse.")
+                return Shelf(id=-1)
+            
             # zone is 1-12
             if zone < 1 or zone > 12:
-                connection.execute(sqlalchemy.text(
-                    """
-                        INSERT INTO status_log (status) VALUES(:status)
-                    """), {"status":"Please enter a zone number 1 through 12."})
+                log("Please enter a zone number 1 through 12.")
                 return Shelf(id=-1)
 
             # zone capacity
@@ -120,10 +132,7 @@ class Mutation:
                     SELECT count(zone) FROM shelves WHERE zone=:zone AND warehouse=:warehouse
                 """), {"zone":zone, "warehouse":warehouse}).scalar_one()
             if count >= 10:
-                connection.execute(sqlalchemy.text(
-                    """
-                        INSERT INTO status_log (status) VALUES(:status)
-                    """), {"status":"Zone " + str(zone) + " is at capacity of 10, please try another zone."})
+                log("Zone " + str(zone) + " is at capacity of 10, please try another zone.")
                 return Shelf(id=-1)
             
             # insert shelf
@@ -134,16 +143,10 @@ class Mutation:
                     """),{"warehouse":warehouse, "name":name, "zone":zone}).scalar_one()
             # unique name
             except:
-                connection.execute(sqlalchemy.text(
-                    """
-                        INSERT INTO status_log (status) VALUES(:status)
-                    """), {"status":"Please provide a unique shelf name."})
+                log("Please provide a unique shelf name.")
                 return Shelf(id=-1)
             
-            connection.execute(sqlalchemy.text(
-                    """
-                        INSERT INTO status_log (status) VALUES(:status)
-                    """), {"status":"Created shelf " + name + "."})
+            log("Created shelf " + name + ".")
 
         return Shelf(id=id)
 

@@ -2,7 +2,8 @@ import { useQuery, gql } from '@apollo/client';
 
 
 const GET_STATUS = gql`
-    {getStatus {message}}
+    {getStatus { 
+        message}}
 `;
 
 export function GetStatus() {

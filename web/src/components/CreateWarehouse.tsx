@@ -2,7 +2,8 @@ import { gql, useLazyQuery } from '@apollo/client';
 
 
 const CREATE_WAREHOUSE = gql`
-    {createWarehouse{id}}
+    {createWarehouse {
+        id}}
 `;
 
 const CreateWarehouse = () => {

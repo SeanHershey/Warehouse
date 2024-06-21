@@ -3,23 +3,23 @@ import { gql, useMutation } from '@apollo/client';
 
 
 const CREATE_SHELF = gql`
-    mutation Shelf($name: String!, $zone: Int!, $warehouse: Int!) {
-        createShelf(name:$name, zone:$zone, warehouse:$warehouse) {
-            id message}}
+    mutation Shelf($name: String!, $warehouse: Int!, $zone: Int!) {
+        createShelf(name:$name, warehouse:$warehouse, zone:$zone) {
+            id}}
 `;
 
 const CreateShelf = () => {
     const [formState, setFormState] = useState({
         name: '',
-        zone: '',
-        warehouse: ''
+        warehouse: '',
+        zone: ''
     });
 
     const [createLink] = useMutation(CREATE_SHELF, {
         variables: {
             name: formState.name,
-            zone: Number(formState.zone),
-            warehouse: Number(formState.warehouse)
+            warehouse: Number(formState.warehouse),
+            zone: Number(formState.zone)
         }
     });
 

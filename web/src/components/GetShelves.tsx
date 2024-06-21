@@ -2,7 +2,8 @@ import { useQuery, gql } from '@apollo/client';
 
 
 const GET_SHELVES = gql`
-    {getShelves {results}}
+    {getShelves { 
+        results}}
 `;
 
 export function GetShelves() {
