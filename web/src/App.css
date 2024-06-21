@@ -1,17 +1,17 @@
-#shelves td, #shelves th {
+td, th {
     border: 1px solid #ddd;
     padding: 8px;
 }
 
-#shelves tr:nth-child(even){
+tr:nth-child(even){
     background-color: #171717;
 }
 
-#shelves tr:hover {
+tr:hover {
     background-color: #111;
 }
 
-#shelves th {
+th {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;

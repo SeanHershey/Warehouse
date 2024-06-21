@@ -14,7 +14,7 @@ export function GetShelves() {
         {loading ? (
             <p>Loading ...</p>
         ) : (
-            <table id="shelves">
+            <table id="shelves" className="table">
                 <thead>
                 <tr key="legend">
                     <th>Warehouse</th>

@@ -3,7 +3,8 @@ import CreateWarehouse from "./components/CreateWarehouse";
 import CreateShelf from "./components/CreateShelf";
 import { GetStatus } from "./components/GetStatus";
 import Reset from "./components/Reset";
-import "./App.css"
+import "./App.css";
+
 
 function App() {
     return (
