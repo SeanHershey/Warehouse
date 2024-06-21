@@ -3,11 +3,9 @@ An application that allows its employees to keep track of its physical inventory
 Able to define the layout of a warehouse.
 Then associate an item’s storage shelf with a physical location.
 
-Website - https://warehouse-app-lxap.onrender.com/
-
-API - https://warehouse-pcmv.onrender.com/graphql
-
-Contact - sean.p.hershey@gmail.com
+Website - https://warehouse-app-lxap.onrender.com/  
+API - https://warehouse-pcmv.onrender.com/graphql  
+Contact - sean.p.hershey@gmail.com  
 
 ## Setup
 Clone repository or download files
@@ -45,11 +43,24 @@ Clone repository or download files
 - TypeScript
 - Apollo Client
 
+Using Vite provided a minimal setup to get React + TypeScript working in Vite with HMR and some ESLint rules.  
+I then added ApolloClient to send GraphQL queries and mutations.  
+I created React components for GetShelves, CreateWarehouse, CreateShelf, GetStatus, and Reset.  
+I did simple CSS styling for the App as a whole.  
+
 **Backend**
 - GraphQL
 - FastAPI
 - Postgres
 
+The backend is built on FastAPI.  
+I used Strawberry for GraphQL classes, which made queries easy to represent.  
+Then I ran Postgres SQL with SQLalchemy to the Supabase database (The schema can be found in schema.sql).  
+CORS was handled using Starlette.  
+
 **Deployment**
 - Supabase
 - Render
+
+Supabase handles the database tables and a CRON job that keeps the sites up always accessible.  
+Render hosts the API server and the website.  
