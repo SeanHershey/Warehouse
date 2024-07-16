@@ -1,7 +1,7 @@
 # Warehouse
-An application that allows its employees to keep track of its physical inventory.
-Able to define the layout of a warehouse.
-Then associate an item’s storage shelf with a physical location.
+An application that allows its employees to keep track of its physical inventory.  
+Able to define the layout of a warehouse.  
+Then associate an item’s storage shelf with a physical location.  
 
 Website - https://warehouse-app-lxap.onrender.com/  
 API - https://warehouse-pcmv.onrender.com/graphql  
